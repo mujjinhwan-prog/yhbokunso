@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>보건지소·진료소 영업 매뉴얼</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4F6F1;
+    --paper:#FFFFFF;
+    --ink:#152420;
+    --muted:#67746C;
+    --line:#DCE3DA;
+    --primary:#1F6F54;
+    --primary-dark:#0F4A37;
+    --primary-tint:#E4F1EA;
+    --accent:#E2853B;
+    --accent-tint:#FCEADA;
+    --danger:#C2542F;
+    --shadow: 0 10px 30px rgba(15,60,45,0.10);
+    --radius: 20px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Noto Sans KR",-apple-system,BlinkMacSystemFont,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+  input, textarea{ user-select:text; -webkit-user-select:text; }
+  .mono{font-family:"IBM Plex Mono", monospace;}
+  button{font-family:inherit;}
+  input{font-family:inherit;}
+  img{-webkit-user-drag:none;}
+
+  /* ---------- Device gate ---------- */
+  .device-block{
+    position:fixed;inset:0;z-index:9999;
+    background:#0F1E17;color:#EDF3EE;
+    display:none;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:40px;gap:14px;
+  }
+  .device-block.show{display:flex;}
+  .device-block .dbicon{width:56px;height:56px;color:#7FBE9F;}
+  .device-block .dbtitle{font-size:18px;font-weight:800;letter-spacing:-0.01em;}
+  .device-block .dbdesc{font-size:13px;color:#B7C7BE;line-height:1.6;max-width:320px;}
+
+  #app{
+    max-width:430px;
+    margin:0 auto;
+    height:100vh;
+    height:100dvh;
+    position:relative;
+    background:var(--bg);
+    overflow:hidden;
+    box-shadow: 0 0 60px rgba(0,0,0,0.12);
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;flex-shrink:0;}
+  .backbtn{
+    width:36px;height:36px;border-radius:11px;border:1px solid var(--line);
+    background:var(--paper);display:flex;align-items:center;justify-content:center;
+    color:var(--primary-dark);cursor:pointer;flex-shrink:0;
+  }
+  .backbtn svg{width:18px;height:18px;}
+  .topbar-title{font-size:15px;font-weight:700;letter-spacing:-0.01em;color:var(--ink);}
+  .topbar-sub{font-size:11px;color:var(--muted);font-family:"IBM Plex Mono", monospace;letter-spacing:0.02em;}
+
+  /* ---------- Screens ---------- */
+  .screen{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    opacity:0;pointer-events:none;transform:translateY(8px);
+    transition:opacity .28s ease, transform .28s ease;
+    z-index:1;background:var(--bg);
+  }
+  .screen.active{opacity:1;pointer-events:auto;transform:translateY(0);z-index:2;}
+
+  /* ================= GATE ================= */
+  .gate-wrap{
+    flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;
+    padding:32px 28px;text-align:center;
+  }
+  .gate-mark{
+    width:64px;height:64px;border-radius:20px;background:var(--primary);color:#fff;
+    display:flex;align-items:center;justify-content:center;margin-bottom:20px;
+  }
+  .gate-mark svg{width:30px;height:30px;}
+  .gate-eyebrow{font-family:"IBM Plex Mono", monospace;font-size:11px;color:var(--primary);letter-spacing:0.14em;font-weight:600;}
+  .gate-title{font-size:22px;font-weight:800;letter-spacing:-0.02em;margin:10px 0 8px;line-height:1.4;}
+  .gate-desc{font-size:13px;color:var(--muted);line-height:1.6;max-width:280px;margin-bottom:28px;}
+  .gate-btn{
+    width:100%;max-width:280px;padding:15px;background:var(--primary);color:#fff;
+    border:none;border-radius:15px;font-size:14.5px;font-weight:700;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--shadow);
+  }
+  .gate-btn svg{width:18px;height:18px;}
+  .gate-btn-orange{
+    width:100%;max-width:280px;padding:15px;background:var(--accent);color:#fff;
+    border:none;border-radius:15px;font-size:14.5px;font-weight:700;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--shadow);
+    margin-top:10px;
+  }
+  .gate-btn-orange svg{width:18px;height:18px;}
+  .gate-links{display:flex;flex-direction:column;gap:10px;margin-top:18px;}
+  .gate-links button{
+    background:none;border:none;color:var(--muted);font-size:12.5px;font-weight:600;cursor:pointer;
+    text-decoration:underline;text-underline-offset:3px;
+  }
+  .gate-copyright{
+    position:absolute;
+    bottom:calc(18px + env(safe-area-inset-bottom));
+    left:0;right:0;
+    text-align:center;
+    font-size:10.5px;
+    color:var(--muted);
+    line-height:1.7;
+    opacity:0.75;
+  }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay{
+    position:absolute;inset:0;background:rgba(10,20,16,0.45);
+    display:flex;align-items:flex-end;justify-content:center;z-index:50;
+    opacity:0;pointer-events:none;transition:opacity .2s ease;
+  }
+  .modal-overlay.show{opacity:1;pointer-events:auto;}
+  .modal-sheet{
+    width:100%;max-width:430px;background:var(--paper);border-radius:24px 24px 0 0;
+    padding:22px 22px calc(24px + env(safe-area-inset-bottom));
+    transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1);
+  }
+  .modal-overlay.show .modal-sheet{transform:translateY(0);}
+  .modal-title{font-size:16.5px;font-weight:800;letter-spacing:-0.01em;margin-bottom:4px;}
+  .modal-desc{font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:16px;}
+  .field-label{font-size:11.5px;font-weight:700;color:var(--ink);margin-bottom:6px;display:block;}
+  .field-input{
+    width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;
+    font-size:14px;outline:none;margin-bottom:6px;
+  }
+  .field-input:focus{border-color:var(--primary);}
+  .field-error{font-size:11.5px;color:var(--danger);margin:-2px 0 12px;min-height:14px;font-weight:600;}
+  .modal-row{display:flex;gap:10px;}
+  .btn-secondary{
+    flex:1;padding:13px;border-radius:12px;border:1.5px solid var(--line);
+    background:var(--paper);color:var(--ink);font-weight:700;font-size:13.5px;cursor:pointer;
+  }
+  .btn-primary{
+    flex:1.4;padding:13px;border-radius:12px;border:none;background:var(--primary);color:#fff;
+    font-weight:700;font-size:13.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
+  }
+  .btn-primary:disabled{opacity:0.5;}
+  .status-box{
+    background:var(--primary-tint);border-radius:14px;padding:16px;display:flex;gap:12px;
+    align-items:flex-start;margin-bottom:16px;
+  }
+  .status-box svg{width:20px;height:20px;color:var(--primary-dark);flex-shrink:0;margin-top:1px;}
+  .status-box .t1{font-size:13px;font-weight:700;color:var(--primary-dark);margin-bottom:3px;}
+  .status-box .t2{font-size:11.5px;color:#2B4A3D;line-height:1.5;}
+  .status-box.pending{background:var(--accent-tint);}
+  .status-box.pending svg{color:var(--danger);}
+  .status-box.pending .t1{color:var(--danger);}
+  .status-box.pending .t2{color:#7A4321;}
+
+  /* ================= HOME ================= */
+  .home-hero{padding:30px 24px 16px;flex-shrink:0;}
+  .eyebrow{font-family:"IBM Plex Mono", monospace;font-size:11px;color:var(--primary);letter-spacing:0.14em;font-weight:600;}
+  .home-title{font-size:26px;font-weight:800;line-height:1.32;margin:10px 0 8px;letter-spacing:-0.02em;}
+  .home-title em{font-style:normal;color:var(--primary);}
+  .home-desc{font-size:13.5px;color:var(--muted);line-height:1.6;}
+  .home-user{
+    display:flex;align-items:center;gap:8px;margin-top:14px;background:var(--paper);
+    border:1px solid var(--line);border-radius:12px;padding:9px 12px;
+  }
+  .home-user svg{width:15px;height:15px;color:var(--primary);flex-shrink:0;}
+  .home-user span{font-size:11.5px;color:var(--ink);font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .home-user button{background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;text-decoration:underline;flex-shrink:0;}
+
+  .home-body{flex:1;overflow-y:auto;padding:8px 20px 26px;display:flex;flex-direction:column;}
+  .journey-list{display:flex;flex-direction:column;gap:10px;margin-bottom:22px;}
+  .journey-item{
+    background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:14px 16px;
+    display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);cursor:pointer;
+  }
+  .journey-item:active{transform:scale(0.98);}
+  .journey-num{
+    width:30px;height:30px;border-radius:50%;background:var(--primary-tint);color:var(--primary-dark);
+    display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono", monospace;
+    font-weight:700;font-size:12.5px;flex-shrink:0;
+  }
+  .journey-body{flex:1;min-width:0;}
+  .journey-title{font-size:14px;font-weight:700;letter-spacing:-0.01em;}
+  .journey-desc{font-size:11.5px;color:var(--muted);margin-top:1px;}
+  .journey-count{
+    font-family:"IBM Plex Mono", monospace;font-size:10.5px;color:var(--muted);flex-shrink:0;
+  }
+  .start-btn{
+    width:100%;padding:16px;background:var(--primary);color:#fff;border:none;border-radius:16px;
+    font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+    box-shadow:var(--shadow);margin-top:auto;
+  }
+  .start-btn svg{width:19px;height:19px;}
+  .resume-hint{text-align:center;font-size:11px;color:var(--muted);margin-top:10px;font-family:"IBM Plex Mono", monospace;}
+
+  /* ================= LEARN DECK ================= */
+  .deck-meta{padding:2px 22px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+  .deck-count{font-family:"IBM Plex Mono", monospace;font-size:12px;color:var(--muted);font-weight:600;flex-shrink:0;}
+  .deck-count b{color:var(--ink);}
+  .progressbar{flex:1;height:4px;background:var(--line);border-radius:4px;margin-left:14px;overflow:hidden;}
+  .progressbar-fill{height:100%;background:var(--primary);border-radius:4px;transition:width .35s ease;}
+  .deck-stage{flex:1;min-height:0;position:relative;padding:6px 22px 8px;overflow:hidden;}
+  .card{
+    position:absolute;inset:6px 22px 8px;background:var(--paper);border-radius:24px;box-shadow:var(--shadow);
+    border:1px solid var(--line);padding:24px 22px 20px;display:flex;flex-direction:column;
+    transition: transform .32s cubic-bezier(.2,.8,.2,1), opacity .32s ease;
+  }
+  .card .tagrow{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-shrink:0;}
+  .card .num-badge{font-family:"IBM Plex Mono", monospace;font-size:11px;font-weight:700;color:#fff;background:var(--primary);padding:4px 9px;border-radius:8px;letter-spacing:0.02em;}
+  .card.tip .num-badge{background:var(--accent);}
+  .card.step .num-badge{background:var(--ink);}
+  .card .tagrow .cat{font-size:11px;color:var(--muted);font-family:"IBM Plex Mono", monospace;letter-spacing:0.04em;}
+  .card .icon-wrap{width:48px;height:48px;border-radius:15px;background:var(--primary-tint);color:var(--primary-dark);display:flex;align-items:center;justify-content:center;margin-bottom:14px;flex-shrink:0;}
+  .card.tip .icon-wrap{background:var(--accent-tint);color:var(--danger);}
+  .card.step .icon-wrap{background:#EAF0FB;color:#2C4C87;}
+  .card .icon-wrap svg{width:24px;height:24px;}
+  .card .card-text{font-size:16px;line-height:1.6;font-weight:600;letter-spacing:-0.01em;color:var(--ink);}
+  .card .card-sub{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.55;}
+  .card.step{padding:18px 20px 14px;}
+  .card.step .icon-wrap{width:38px;height:38px;margin-bottom:8px;}
+  .card.step .tagrow{margin-bottom:8px;}
+  .card.step .step-links{margin-top:8px;}
+  .card.step .swipehint{padding-top:6px;}
+  .card.step .icon-wrap svg{width:19px;height:19px;}
+  .card .step-title{font-size:16px;font-weight:800;letter-spacing:-0.01em;margin-bottom:8px;flex-shrink:0;}
+  .card .step-body{flex:1;min-height:0;overflow-y:auto;}
+  .card .step-body ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;}
+  .card .step-body li{font-size:12.5px;line-height:1.45;color:#2B3A34;padding-left:14px;position:relative;}
+  .card .step-body li::before{content:"";position:absolute;left:0;top:6px;width:4px;height:4px;border-radius:50%;background:var(--accent);}
+  .card .step-note{margin-top:8px;background:var(--primary-tint);border-radius:9px;padding:8px 10px;font-size:11.5px;color:var(--primary-dark);line-height:1.4;}
+  .card .step-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+  .link-chip{display:inline-flex;align-items:center;gap:5px;background:var(--ink);color:#fff;padding:7px 11px;border-radius:20px;font-size:11.5px;font-weight:700;text-decoration:none;flex-shrink:0;}
+  .link-chip svg{width:12px;height:12px;}
+  .swipehint{text-align:center;font-size:10.5px;color:var(--muted);margin-top:auto;padding-top:12px;font-family:"IBM Plex Mono", monospace;letter-spacing:0.02em;flex-shrink:0;}
+  .swipehint.step-hint{color:var(--primary-dark);font-weight:600;}
+
+  .deck-controls{flex-shrink:0;display:flex;align-items:center;gap:12px;padding:12px 22px calc(20px + env(safe-area-inset-bottom));}
+  .navbtn{width:46px;height:46px;border-radius:14px;border:1px solid var(--line);background:var(--paper);display:flex;align-items:center;justify-content:center;color:var(--ink);flex-shrink:0;cursor:pointer;}
+  .navbtn svg{width:19px;height:19px;}
+  .navbtn.disabled{opacity:0.35;pointer-events:none;}
+  .checkbtn{flex:1;height:46px;border-radius:14px;border:none;background:var(--primary);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;letter-spacing:-0.01em;}
+  .checkbtn svg{width:18px;height:18px;}
+  .dots{display:flex;justify-content:center;flex-wrap:wrap;gap:5px;padding:0 24px 10px;flex-shrink:0;}
+  .dot{width:5px;height:5px;border-radius:50%;background:var(--line);transition:all .25s ease;}
+  .dot.done{background:var(--primary);}
+  .dot.active{background:var(--accent);width:14px;border-radius:3px;}
+
+  /* ================= COMPLETE screen ================= */
+  .complete-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;gap:14px;}
+  .complete-badge{width:78px;height:78px;border-radius:50%;background:var(--primary-tint);color:var(--primary-dark);display:flex;align-items:center;justify-content:center;}
+  .complete-badge svg{width:38px;height:38px;}
+  .complete-title{font-size:20px;font-weight:800;letter-spacing:-0.01em;}
+  .complete-sub{font-size:13px;color:var(--muted);line-height:1.6;max-width:290px;}
+  .send-btn{
+    width:100%;max-width:280px;margin-top:10px;padding:15px;background:var(--primary);color:#fff;border:none;
+    border-radius:15px;font-size:14.5px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+    box-shadow:var(--shadow);
+  }
+  .send-btn svg{width:18px;height:18px;}
+  .send-btn:disabled{opacity:0.6;}
+  .send-btn.sent{background:var(--ink);}
+  .complete-error{font-size:11.5px;color:var(--danger);font-weight:600;min-height:14px;}
+  .home-link-btn{margin-top:6px;background:none;border:none;color:var(--muted);font-size:12.5px;font-weight:600;cursor:pointer;text-decoration:underline;}
+
+  ::-webkit-scrollbar{width:0;height:0;}
+</style>
+</head>
+<body oncontextmenu="return false;">
+
+<div class="device-block" id="deviceBlock">
+  <svg class="dbicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg>
+  <div class="dbtitle">PC·노트북에서는 이용할 수 없어요</div>
+  <div class="dbdesc">이 매뉴얼은 모바일과 태블릿에서만 작동합니다. 휴대폰 또는 태블릿의 브라우저로 이 링크를 다시 열어주세요.</div>
+</div>
+
+<div id="app">
+
+  <!-- ============ GATE ============ -->
+  <section class="screen active" id="screen-gate">
+    <div class="gate-wrap">
+      <div class="gate-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
+      </div>
+      <div class="gate-eyebrow">Sales Field Training</div>
+      <div class="gate-title">보건지소·진료소<br>영업 매뉴얼</div>
+      <div class="gate-desc">유한양행 임직원 전용 콘텐츠입니다.<br>회사 이메일로 인증 후 이용할 수 있어요.</div>
+      <button class="gate-btn" onclick="openModal('email')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+        유한양행 인증하기
+      </button>
+      <button class="gate-btn-orange" onclick="openModal('key')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        로그인하기 (인증키 보유중)
+      </button>
+      <div class="gate-links">
+        <button onclick="openModal('statusCheck')">인증 요청 상태 확인</button>
+      </div>
+    </div>
+    <div class="gate-copyright">YUHAN Sales Planning Team.<br>All rights reserved.</div>
+  </section>
+
+  <!-- ============ HOME ============ -->
+  <section class="screen" id="screen-home">
+    <div class="home-hero">
+      <div class="eyebrow">Sales Field Training</div>
+      <div class="home-title">보건지소·진료소<br><em>영업 매뉴얼</em></div>
+      <div class="home-desc">아래 순서대로 끝까지 학습을 완료하면 관리자에게 완료 메시지를 보낼 수 있어요.</div>
+      <div class="home-user">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        <span id="homeUserEmail">인증됨</span>
+        <button onclick="logout()">로그아웃</button>
+      </div>
+    </div>
+    <div class="home-body">
+      <div class="journey-list">
+        <div class="journey-item" onclick="startFlow(0,6)">
+          <div class="journey-num mono">1</div>
+          <div class="journey-body">
+            <div class="journey-title">공략의 필요성</div>
+            <div class="journey-desc">보건소 보건지소 진료소의 방문이유</div>
+          </div>
+          <div class="journey-count mono">6</div>
+        </div>
+        <div class="journey-item" onclick="startFlow(6,10)">
+          <div class="journey-num mono">2</div>
+          <div class="journey-body">
+            <div class="journey-title">업무 Flow</div>
+            <div class="journey-desc">입찰 확인부터 실적 통계 확보까지</div>
+          </div>
+          <div class="journey-count mono">4</div>
+        </div>
+        <div class="journey-item" onclick="startFlow(10,21)">
+          <div class="journey-num mono">3</div>
+          <div class="journey-body">
+            <div class="journey-title">국가보건기관 공략 Tip</div>
+            <div class="journey-desc">현장에서 바로 쓰는 실전 노하우</div>
+          </div>
+          <div class="journey-count mono">11</div>
+        </div>
+      </div>
+      <button class="start-btn" onclick="startFlow(0)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"/></svg>
+        학습 시작하기
+      </button>
+      <div class="resume-hint" id="resumeHint" style="display:none;"></div>
+    </div>
+  </section>
+
+  <!-- ============ LEARN (통합 학습 흐름) ============ -->
+  <section class="screen" id="screen-learn">
+    <div class="topbar">
+      <div class="backbtn" onclick="goTo('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></div>
+      <div>
+        <div class="topbar-title" id="learnTitle">학습</div>
+        <div class="topbar-sub" id="learnSub">STEP</div>
+      </div>
+    </div>
+    <div class="deck-meta">
+      <span class="deck-count mono"><b id="flowIdx">1</b>&nbsp;/&nbsp;<span id="flowLen">19</span></span>
+      <div class="progressbar"><div class="progressbar-fill" id="flowBar" style="width:5%"></div></div>
+    </div>
+    <div class="deck-stage" id="flowStage"></div>
+    <div class="dots" id="flowDots"></div>
+    <div class="deck-controls">
+      <div class="navbtn" id="flowPrev" onclick="deckPrev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></div>
+      <button class="checkbtn" id="flowCheck" onclick="deckCheck()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        확인했어요
+      </button>
+    </div>
+  </section>
+
+  <!-- ============ COMPLETE ============ -->
+  <section class="screen" id="screen-complete">
+    <div class="topbar">
+      <div class="backbtn" onclick="goTo('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></div>
+    </div>
+    <div class="complete-wrap">
+      <div class="complete-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <div class="complete-title">모든 과정을 완료했어요</div>
+      <div class="complete-sub">공략의 필요성, 업무 Flow, 국가보건기관 공략 Tip까지 전체 학습을 마쳤습니다. 아래 버튼을 누르면 관리자에게 이수 완료가 전달돼요.</div>
+      <button class="send-btn" id="sendCompleteBtn" onclick="sendComplete()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+        관리자에게 완료메시지 보내기
+      </button>
+      <div class="complete-error" id="completeError"></div>
+      <button class="home-link-btn" onclick="goTo('home')">처음으로</button>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============ MODALS ============ -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this) closeModal()">
+
+  <div class="modal-sheet" id="modal-email" style="display:none;">
+    <div class="modal-title">유한양행 인증하기</div>
+    <div class="modal-desc">이름, 사번, 회사 이메일(@yuhan.co.kr)을 입력하면 관리자에게 인증 요청이 전송됩니다.</div>
+    <span class="field-label">이름</span>
+    <input type="text" class="field-input" id="nameInput" placeholder="유일한" autocomplete="off">
+    <span class="field-label">사번 (8자리 숫자)</span>
+    <input type="text" class="field-input" id="empIdInput" placeholder="20000002" inputmode="numeric" maxlength="8" autocomplete="off">
+    <span class="field-label">회사 이메일</span>
+    <input type="email" class="field-input" id="emailInput" placeholder="yuhan@yuhan.co.kr" autocomplete="off">
+    <div class="field-error" id="emailError"></div>
+    <div class="modal-row">
+      <button class="btn-secondary" onclick="closeModal()">취소</button>
+      <button class="btn-primary" id="emailSubmitBtn" onclick="submitEmailRequest()">관리자에게 보내기</button>
+    </div>
+  </div>
+
+  <div class="modal-sheet" id="modal-pending" style="display:none;">
+    <div class="modal-title">요청이 접수됐어요</div>
+    <div class="status-box pending">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+      <div>
+        <div class="t1">관리자 승인 대기 중</div>
+        <div class="t2" id="pendingEmailText">담당 관리자가 확인 후 승인하면 로그인 키를 받을 수 있어요.</div>
+      </div>
+    </div>
+    <div class="modal-row">
+      <button class="btn-secondary" onclick="closeModal()">닫기</button>
+      <button class="btn-primary" onclick="checkMyStatus()">상태 확인</button>
+    </div>
+  </div>
+
+  <div class="modal-sheet" id="modal-key" style="display:none;">
+    <div class="modal-title">로그인 키 입력</div>
+    <div class="modal-desc">관리자에게 받은 로그인 키를 입력하세요.</div>
+    <span class="field-label">로그인 키</span>
+    <input type="text" class="field-input" id="keyInput" placeholder="예: A1B2C3" autocomplete="off" style="text-transform:uppercase;">
+    <div class="field-error" id="keyError"></div>
+    <div class="modal-row">
+      <button class="btn-secondary" onclick="closeModal()">취소</button>
+      <button class="btn-primary" onclick="submitKey()">입장하기</button>
+    </div>
+  </div>
+
+  <div class="modal-sheet" id="modal-statusCheck" style="display:none;">
+    <div class="modal-title">인증 요청 상태 확인</div>
+    <div class="modal-desc" id="statusCheckDesc">이 기기에서 보낸 인증 요청이 있는지 확인합니다.</div>
+    <div class="modal-row">
+      <button class="btn-secondary" onclick="closeModal()">닫기</button>
+      <button class="btn-primary" onclick="checkMyStatus()">상태 확인</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ---------------- DEVICE / PROTECTION ---------------- */
+function isAllowedDevice(){
+  const ua = navigator.userAgent || '';
+  const mobileUA = /Android|iPhone|iPod|IEMobile|BlackBerry|BB10|Opera Mini|Mobile/i.test(ua) && !/Windows NT/i.test(ua);
+  const tabletTouch = (navigator.maxTouchPoints || 0) > 1;
+  return mobileUA || tabletTouch;
+}
+function checkDevice(){
+  document.getElementById('deviceBlock').classList.toggle('show', !isAllowedDevice());
+}
+checkDevice();
+window.addEventListener('resize', checkDevice);
+
+document.addEventListener('keydown', function(e){
+  const k = (e.key || '').toUpperCase();
+  if (k === 'F12') { e.preventDefault(); return; }
+  if (e.ctrlKey && e.shiftKey && (k === 'I' || k === 'J' || k === 'C')) { e.preventDefault(); return; }
+  if (e.ctrlKey && (k === 'U' || k === 'S')) { e.preventDefault(); return; }
+  if (e.metaKey && e.altKey && (k === 'I' || k === 'J' || k === 'C')) { e.preventDefault(); return; }
+});
+
+/* ---------------- ICONS ---------------- */
+const ICONS = {
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>',
+  handshake:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12l3 3 6-6"/><path d="M2 12l5-5 4 2 4-2 5 5-3 3-3-2-3 2-3-2-3 2z"/></svg>',
+  chart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M8 17V10M13 17V6M18 17v-4"/></svg>',
+  mail:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>',
+  pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.6 7-11.5A7 7 0 0 0 5 9.5C5 14.4 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.4"/></svg>',
+  stethoscope:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4v5a4 4 0 0 0 8 0V4"/><path d="M9 15a5 5 0 0 0 10 0v-2"/><circle cx="19" cy="17" r="2"/></svg>',
+  users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 8.5a3 3 0 1 1 3.6 4.7"/><path d="M21.5 20a5.5 5.5 0 0 0-4.5-5.4"/></svg>',
+  calendar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+  moon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.3 6.3 0 0 0 10.5 10.5z"/></svg>',
+  swap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-4 4"/><path d="M3 11V9a2 2 0 0 1 2-2h16"/><path d="M7 21l-4-4 4-4"/><path d="M21 13v2a2 2 0 0 1-2 2H3"/></svg>',
+  list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>',
+  truck:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="7" width="14" height="10" rx="1"/><path d="M15 10h4l3 3v4h-7z"/><circle cx="6" cy="19" r="1.6"/><circle cx="18" cy="19" r="1.6"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>',
+  alert:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17.5h.01"/></svg>',
+  refresh:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11A8 8 0 1 0 18.6 16"/><path d="M20 5v6h-6"/></svg>',
+  building:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 8h1M14 8h1M9 12h1M14 12h1M9 16h1M14 16h1"/></svg>',
+  heart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7.5-4.7-9.5-9A5 5 0 0 1 12 6a5 5 0 0 1 9.5 5c-2 4.3-9.5 9-9.5 9z"/></svg>',
+  external:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M10 14L20 4"/><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"/></svg>'
+};
+
+/* ---------------- DATA ---------------- */
+const needData = [
+  {icon:"stethoscope", text:"국가보건기관 공략의 주체는 의료인, 즉 HCP임을 명심하고 공략합시다.", sub:""},
+  {icon:"chart", text:"군 단위의 지소가 존재하는 지역은 연간 평균 70,000~90,000 약제비의 시장입니다.", sub:""},
+  {icon:"list", text:"약제리스트 내 품목은 진료소에 상주하는 공무원이 직접 주문해 약을 확보합니다.", sub:"전국 진료소 약제리스트 또는 소속 보건소·의료원 리스트 기준"},
+  {icon:"stethoscope", text:"확보된 약 중에서 지소의 공중보건의나 담당의가 처방을 진행합니다.", sub:""},
+  {icon:"heart", text:"따라서 진료소도 명확한 영업대상이며, 종종 방문이 필요합니다.", sub:""},
+  {icon:"building", text:"처방통계에서 진료소 총처방액을 확인할 수 있어 이를 근거로 영업을 진행합니다.", sub:"상주 공무원 수로 의료시설 규모를 가늠할 수 있습니다."}
+];
+
+const stepData = [
+  {title:"입찰공고 확인", icon:"search",
+   items:[
+     "나라장터에 접속해 입찰공고목록을 확인합니다.",
+     "상세조건에서 공고기관에 담당 보건소·의료원을 검색하거나, 공고명에 보건지소·의약품을 검색합니다."
+   ],
+   links:[{label:"나라장터 바로가기", url:"https://www.g2b.go.kr"}]
+  },
+  {title:"낙찰 결과 및 약정 확인", icon:"handshake",
+   items:[
+     "해당 공고에서 의약품 리스트와 총 예산을 확인합니다.",
+     "기관마다 리스트 변경 가능 기간이 다르므로 기관별로 별도 확인이 필요합니다.",
+     "리스트에 속한 제품만 지소에서 주문할 수 있습니다."
+   ],
+   note:"낙찰 도매상 확인 후 팀장·입찰팀이 약정을 협상하고 영업을 시작합니다."
+  },
+  {title:"지소별 실적 확인", icon:"chart",
+   items:[
+     "해당 군청의 사전정보공표 게시판에 접속합니다.",
+     "제약회사별 약 소모 통계 문서에서 지소·진료소별 처방금액과 경쟁제품 통계를 확인합니다.",
+     "통계가 없는 경우 정보공개포털에서 정보청구를 진행합니다."
+   ],
+   links:[{label:"정보공개포털 바로가기", url:"https://www.open.go.kr"}]
+  },
+  {title:"정보공개청구로 통계 확보", icon:"mail",
+   items:[
+     "정보청구 대상을 해당 시군구로 설정해 청구합니다.",
+     "시군구 기록연구사를 거쳐 보건소 의약품 통계 담당자에게 자동 이관됩니다.",
+     "처방통계가 첨부된 답변을 받게 됩니다."
+   ]}
+];
+
+const tipData = [
+  {icon:"calendar", text:"매년 4~5월은 신규 선생님 발령과 지역이동이 진행되는 시기이니 방문을 철저히 합니다."},
+  {icon:"users", text:"공중보건의를 대상으로 제품설명회를 진행합니다.", sub:"인원이 부족할 때는 의료원·보건소 선생님도 포함합니다."},
+  {icon:"building", text:"입대자 부족으로 1명이 지소 2~3곳을 담당하고 봉직의 고용도 많아, 초반 영업활동이 특히 중요합니다."},
+  {icon:"moon", text:"가장 선호되는 영업 툴은 1박 2일 숙박 심포지엄입니다.", sub:"신규 근무가 시작되는 4~5월에는 초대에 집중이 필요합니다."},
+  {icon:"chart", text:"처방통계를 확인하면 경쟁사 제품이나 의미 없이 쓰이는 제품의 교체 제안이 수월합니다."},
+  {icon:"list", text:"약제리스트 특성상 신제품 진입은 어렵지만, 일단 리스트에 등록되면 처방량이 많습니다."},
+  {icon:"truck", text:"입찰 도매상이 약정에 따라 임의로 주문을 거절하는 경우가 있어 사전 협의가 필요합니다."},
+  {icon:"clock", text:"도매상의 업무 숙련도에 따라 원하는 시기에 배송이 안 되어 클레임이 발생할 수 있습니다."},
+  {icon:"alert", text:"공중보건의끼리 친한 경우가 많아, 특정 인물만 심포지엄에 초대하면 역효과가 날 수 있습니다."},
+  {icon:"refresh", text:"공중보건의 교체 시기를 놓치면 기존 처방이 한 번에 사라질 수 있습니다."},
+  {icon:"stethoscope", text:"보건소·의료원은 봉직의 근무가 많아 일반 의원과 영업방식이 비슷합니다.", sub:"제품설명회에 한의사·치과 공보의 참석을 요구하는 경우도 있어 사전 설명이 필요합니다."}
+];
+
+/* ---------------- FLOW 구성: 필요성 → 기본순서(1-4) → 영업팁 ---------------- */
+function pad(n){ return String(n).padStart(2,'0'); }
+
+const flow = [
+  ...needData.map((d,i)=>({ type:'need', icon:d.icon, text:d.text, sub:d.sub, cat:`WHY · ${pad(i+1)}/6`, sectionTitle:'공략의 필요성', sectionSub:'보건소 보건지소 진료소의 방문이유' })),
+  ...stepData.map((d,i)=>({ type:'step', icon:d.icon, title:d.title, items:d.items, note:d.note, links:d.links, cat:`STEP · ${pad(i+1)}/4`, sectionTitle:'업무 Flow', sectionSub:`STEP 0${i+1}` })),
+  ...tipData.map((d,i)=>({ type:'tip', icon:d.icon, text:d.text, sub:d.sub, cat:`TIP · ${pad(i+1)}/11`, sectionTitle:'국가보건기관 공략 Tip', sectionSub:`TIP ${pad(i+1)}` }))
+];
+const FLOW_LEN = flow.length; // 6 + 4 + 11 = 21
+
+/* ---------------- NAV ---------------- */
+function goTo(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+}
+
+/* ---------------- FLOW DECK BUILD ---------------- */
+const stage = document.getElementById('flowStage');
+const dotsWrap = document.getElementById('flowDots');
+
+flow.forEach((d,i)=>{
+  const c = document.createElement('div');
+  c.className = 'card' + (d.type==='tip' ? ' tip' : d.type==='step' ? ' step' : '');
+  c.dataset.index = i;
+
+  if(d.type === 'step'){
+    const linksHtml = d.links ? `<div class="step-links">${d.links.map(l=>`<a class="link-chip" href="${l.url}" target="_blank" rel="noopener">${ICONS.external}${l.label}</a>`).join('')}</div>` : '';
+    c.innerHTML = `
+      <div class="tagrow">
+        <span class="num-badge mono">${pad(i+1)}</span>
+        <span class="cat">${d.cat}</span>
+      </div>
+      <div class="icon-wrap">${ICONS[d.icon]||ICONS.pin}</div>
+      <div class="step-title">${d.title}</div>
+      <div class="step-body">
+        <ul>${d.items.map(t=>`<li>${t}</li>`).join('')}</ul>
+        ${d.note ? `<div class="step-note">${d.note}</div>` : ''}
+        ${linksHtml}
+      </div>
+      <div class="swipehint step-hint">과정을 완료후 다음으로 진행해요</div>
+    `;
+  } else {
+    c.innerHTML = `
+      <div class="tagrow">
+        <span class="num-badge mono">${pad(i+1)}</span>
+        <span class="cat">${d.cat}</span>
+      </div>
+      <div class="icon-wrap">${ICONS[d.icon]||ICONS.pin}</div>
+      <div class="card-text">${d.text}</div>
+      ${d.sub ? `<div class="card-sub">${d.sub}</div>` : ''}
+      <div class="swipehint">${i < FLOW_LEN-1 ? '← 스와이프하거나 아래 버튼을 눌러 다음으로' : '마지막 카드입니다'}</div>
+    `;
+  }
+  stage.appendChild(c);
+  const dot = document.createElement('div');
+  dot.className = 'dot';
+  dotsWrap.appendChild(dot);
+});
+
+let flowIndex = 0;
+let flowStart = 0;
+let flowEnd = FLOW_LEN; // 배타적 상한 (전체 학습: FLOW_LEN, 개별 메뉴얼: 해당 섹션 범위)
+
+function layoutFlow(){
+  const cards = document.querySelectorAll('#flowStage .card');
+  cards.forEach((c, idx)=>{
+    const offset = idx - flowIndex;
+    if (offset === 0){
+      c.style.transform = 'translateX(0) scale(1) rotate(0deg)';
+      c.style.opacity = '1';
+      c.style.zIndex = 10;
+    } else if (offset === 1){
+      c.style.transform = 'translateX(14px) scale(0.95) rotate(1.5deg)';
+      c.style.opacity = '0.9';
+      c.style.zIndex = 9;
+    } else if (offset === -1){
+      c.style.transform = 'translateX(-100%) scale(0.98)';
+      c.style.opacity = '0';
+      c.style.zIndex = 5;
+    } else if (offset > 1){
+      c.style.transform = 'translateX(20px) scale(0.9) rotate(2.5deg)';
+      c.style.opacity = '0';
+      c.style.zIndex = 8-offset;
+    } else {
+      c.style.transform = 'translateX(-100%) scale(0.95)';
+      c.style.opacity = '0';
+      c.style.zIndex = 4;
+    }
+  });
+  const d = flow[flowIndex];
+  const isFullFlow = (flowStart === 0 && flowEnd === FLOW_LEN);
+  document.getElementById('flowIdx').textContent = isFullFlow ? (flowIndex+1) : (flowIndex - flowStart + 1);
+  document.getElementById('flowLen') && (document.getElementById('flowLen').textContent = isFullFlow ? FLOW_LEN : (flowEnd - flowStart));
+  document.getElementById('learnTitle').textContent = d.sectionTitle;
+  document.getElementById('learnSub').textContent = d.sectionSub;
+  document.getElementById('flowBar').style.width = ((((flowIndex - flowStart)+1)/(flowEnd - flowStart))*100)+'%';
+  const dots = document.querySelectorAll('#flowDots .dot');
+  dots.forEach((dot,i)=>{
+    const inScope = i >= flowStart && i < flowEnd;
+    dot.style.display = inScope ? '' : 'none';
+    dot.classList.toggle('done', i < flowIndex && inScope);
+    dot.classList.toggle('active', i === flowIndex);
+  });
+  document.getElementById('flowPrev').classList.toggle('disabled', flowIndex===flowStart);
+  const checkBtn = document.getElementById('flowCheck');
+  if (flowIndex === flowEnd-1){
+    if (isFullFlow){
+      checkBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> 학습 완료';
+    } else {
+      checkBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M12 3l9 9-9 9"/></svg> 홈으로 돌아가기';
+    }
+  } else {
+    checkBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> 확인했어요';
+  }
+  if (isFullFlow) localStorage.setItem('voy-flow-progress', String(flowIndex));
+}
+
+function deckCheck(){
+  if (flowIndex < flowEnd - 1){ flowIndex++; layoutFlow(); }
+  else if (flowStart === 0 && flowEnd === FLOW_LEN){ goTo('complete'); }
+  else { goTo('home'); }
+}
+function deckPrev(){
+  if (flowIndex > flowStart){ flowIndex--; layoutFlow(); }
+}
+function deckNext(){
+  if (flowIndex < flowEnd - 1){ flowIndex++; layoutFlow(); }
+  else if (flowStart === 0 && flowEnd === FLOW_LEN){ goTo('complete'); }
+  else { goTo('home'); }
+}
+function startFlow(fromIndex, endIndex){
+  flowStart = typeof fromIndex === 'number' ? fromIndex : 0;
+  flowEnd = typeof endIndex === 'number' ? endIndex : FLOW_LEN;
+  flowIndex = flowStart;
+  layoutFlow();
+  goTo('learn');
+}
+
+/* ---------------- SWIPE ---------------- */
+(function attachSwipe(){
+  let startX = 0, startY = 0, tracking = false;
+  stage.addEventListener('touchstart', e=>{
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    tracking = true;
+  }, {passive:true});
+  stage.addEventListener('touchend', e=>{
+    if (!tracking) return;
+    tracking = false;
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy)){
+      if (dx < 0) deckNext(); else deckPrev();
+    }
+  }, {passive:true});
+})();
+
+layoutFlow();
+
+/* 이어보기 힌트 표시 */
+(function checkResume(){
+  const saved = parseInt(localStorage.getItem('voy-flow-progress') || '0', 10);
+  if (saved > 0 && saved < FLOW_LEN){
+    const hint = document.getElementById('resumeHint');
+    hint.style.display = 'block';
+    hint.textContent = `이전에 ${saved+1}번째 항목까지 보셨어요 · 처음부터 다시 시작합니다`;
+  }
+})();
+
+/* ================= AUTH / BACKEND ================= */
+// 배포한 Google Apps Script 웹 앱 URL(.../exec)을 여기에 붙여넣으세요.
+const API_URL = "https://script.google.com/macros/s/AKfycbw0C37EbKZ8k_y51-m2WxN0CXGoz74Aw0__gKHiKB2Nf_9Orku1Ceb9qdrA8Frldmkazg/exec";
+
+async function apiCall(action, payload){
+  if(!API_URL || API_URL.indexOf('여기에') === 0){
+    return { ok:false, error:'no_api_url' };
+  }
+  try{
+    const res = await fetch(API_URL, {
+      method:'POST',
+      headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+      body: JSON.stringify(Object.assign({action}, payload))
+    });
+    return await res.json();
+  }catch(err){
+    return { ok:false, error:'network' };
+  }
+}
+
+/* ---- Modal helpers ---- */
+function openModal(name){
+  document.querySelectorAll('.modal-sheet').forEach(m=>m.style.display='none');
+  const overlay = document.getElementById('modalOverlay');
+  overlay.classList.add('show');
+  document.getElementById('modal-'+name).style.display='block';
+  document.getElementById('emailError') && (document.getElementById('emailError').textContent='');
+  document.getElementById('keyError') && (document.getElementById('keyError').textContent='');
+}
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('show'); }
+
+/* ---- Email request submit ---- */
+async function submitEmailRequest(){
+  const nameInput = document.getElementById('nameInput');
+  const empIdInput = document.getElementById('empIdInput');
+  const input = document.getElementById('emailInput');
+  const err = document.getElementById('emailError');
+  const name = nameInput.value.trim();
+  const employeeId = empIdInput.value.trim();
+  const email = input.value.trim().toLowerCase();
+  if(!name){ err.textContent = '이름을 입력해주세요.'; return; }
+  if(!/^\d{8}$/.test(employeeId)){ err.textContent = '사번은 8자리 숫자로 입력해주세요.'; return; }
+  if(!/^[^\s@]+@yuhan\.co\.kr$/.test(email)){
+    err.textContent = '@yuhan.co.kr 회사 이메일만 입력할 수 있어요.';
+    return;
+  }
+  const btn = document.getElementById('emailSubmitBtn');
+  btn.disabled = true; btn.textContent = '전송 중...';
+  const res = await apiCall('request', {name, email, employeeId});
+  btn.disabled = false;
+  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> 관리자에게 보내기';
+  if(!res.ok){
+    if(res.error === 'no_api_url') err.textContent = '아직 서버 주소(API_URL)가 설정되지 않았어요.';
+    else if(res.error === 'invalid_email') err.textContent = '@yuhan.co.kr 회사 이메일만 입력할 수 있어요.';
+    else if(res.error === 'invalid_name') err.textContent = '이름을 입력해주세요.';
+    else if(res.error === 'invalid_employee_id') err.textContent = '사번은 8자리 숫자로 입력해주세요.';
+    else err.textContent = '요청 전송에 실패했어요. 잠시 후 다시 시도해주세요.';
+    return;
+  }
+  localStorage.setItem('voy-pending', JSON.stringify({id:res.id, name, email}));
+  document.getElementById('pendingEmailText').textContent = `${name}(${email}) 님의 인증 요청을 보냈어요. 담당 관리자가 확인 후 승인하면 로그인 키를 받을 수 있어요.`;
+  openModal('pending');
+}
+
+/* ---- Status check ---- */
+async function checkMyStatus(){
+  const raw = localStorage.getItem('voy-pending');
+  if(!raw){
+    const d = document.getElementById('statusCheckDesc');
+    if(d) d.textContent = '이 기기에서 보낸 인증 요청 기록이 없어요. 먼저 인증하기를 진행해주세요.';
+    openModal('statusCheck');
+    return;
+  }
+  const pending = JSON.parse(raw);
+  const res = await apiCall('status', {id:pending.id});
+  if(res.ok && res.status==='approved' && res.key){
+    loginWithAuth(res.name || pending.name, res.email, res.key);
+    return;
+  }
+  document.getElementById('pendingEmailText').textContent = `${pending.name}(${pending.email}) 님은 아직 관리자 승인 대기 중이에요. 잠시 후 다시 확인해주세요.`;
+  openModal('pending');
+}
+
+/* ---- Manual key entry ---- */
+async function submitKey(){
+  const input = document.getElementById('keyInput');
+  const err = document.getElementById('keyError');
+  const key = input.value.trim().toUpperCase();
+  if(!key){ err.textContent = '로그인 키를 입력해주세요.'; return; }
+  const res = await apiCall('checkKey', {key});
+  if(!res.ok){ err.textContent = '유효하지 않은 로그인 키예요. 다시 확인해주세요.'; return; }
+  loginWithAuth(res.name, res.email, key);
+}
+
+/* ---- Login / logout ---- */
+function loginWithAuth(name, email, key){
+  localStorage.setItem('voy-auth', JSON.stringify({name, email, key}));
+  closeModal();
+  document.getElementById('homeUserEmail').textContent = name ? `${name} (${email})` : email;
+  goTo('home');
+}
+function logout(){
+  localStorage.removeItem('voy-auth');
+  goTo('gate');
+}
+function initAuth(){
+  const raw = localStorage.getItem('voy-auth');
+  if(raw){
+    try{
+      const data = JSON.parse(raw);
+      document.getElementById('homeUserEmail').textContent = data.name ? `${data.name} (${data.email})` : data.email;
+      goTo('home');
+      return;
+    }catch(e){}
+  }
+  goTo('gate');
+}
+initAuth();
+
+/* ---- 완료 메시지 보내기 ---- */
+async function sendComplete(){
+  const raw = localStorage.getItem('voy-auth');
+  const err = document.getElementById('completeError');
+  const btn = document.getElementById('sendCompleteBtn');
+  err.textContent = '';
+  if(!raw){
+    err.textContent = '로그인 정보가 없어요. 다시 인증해주세요.';
+    return;
+  }
+  const auth = JSON.parse(raw);
+  btn.disabled = true;
+  btn.innerHTML = '전송 중...';
+  const res = await apiCall('complete', {key:auth.key});
+  if(!res.ok){
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg> 관리자에게 완료메시지 보내기';
+    err.textContent = res.error === 'no_api_url' ? '서버 주소가 설정되지 않았어요.' : '전송에 실패했어요. 잠시 후 다시 시도해주세요.';
+    return;
+  }
+  localStorage.removeItem('voy-flow-progress');
+  btn.classList.add('sent');
+  btn.disabled = true;
+  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> 완료메시지를 보냈어요';
+}
+</script>
+</body>
+</html>
