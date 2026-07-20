@@ -302,6 +302,16 @@
   .send-btn:disabled{opacity:0.6;}
   .send-btn.sent{background:var(--ink);}
   .complete-error{font-size:11.5px;color:var(--danger);font-weight:600;min-height:14px;}
+  .complete-gate{
+    width:100%;max-width:280px;background:var(--accent-tint);border:1.5px dashed var(--danger);
+    border-radius:14px;padding:14px;margin-bottom:4px;text-align:center;
+  }
+  .complete-gate-text{font-size:12.5px;color:#7A4321;font-weight:700;line-height:1.5;margin-bottom:10px;}
+  .gate-photo-btn{
+    width:100%;padding:10px;border:none;border-radius:10px;background:var(--ink);color:#fff;
+    font-weight:700;font-size:12.5px;cursor:pointer;
+  }
+  .send-btn.locked{background:var(--line);color:var(--muted);box-shadow:none;cursor:not-allowed;}
   .home-link-btn{margin-top:6px;background:none;border:none;color:var(--muted);font-size:12.5px;font-weight:600;cursor:pointer;text-decoration:underline;}
 
   ::-webkit-scrollbar{width:0;height:0;}
@@ -424,6 +434,12 @@
       </div>
       <div class="complete-title">모든 과정을 완료했어요</div>
       <div class="complete-sub">공략의 필요성, 업무 Flow, 국가보건기관 공략 Tip까지 전체 학습을 마쳤습니다. 아래 버튼을 누르면 관리자에게 이수 완료가 전달돼요.</div>
+
+      <div class="complete-gate" id="completeGate" style="display:none;">
+        <div class="complete-gate-text">나라장터 방문 인증사진을 올려야 이수완료를 보낼 수 있어요.</div>
+        <button class="gate-photo-btn" onclick="goUploadPhotoFromComplete()">나라장터 인증사진 올리러 가기</button>
+      </div>
+
       <button class="send-btn" id="sendCompleteBtn" onclick="sendComplete()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
         관리자에게 완료메시지 보내기
@@ -696,6 +712,11 @@ async function uploadPhoto_(stepKey){
   }
   localStorage.setItem('voy-photo-'+stepKey+'-done', '1');
   body.innerHTML = `<div class="photo-status ok">✓ 업로드 완료! 방문이 확인됐어요.</div><button type="button" class="photo-retake" onclick="resetPhotoWidget_('${stepKey}')">다시 올리기</button>`;
+
+  if(stepKey === 'g2b' && returnToCompleteAfterPhoto){
+    returnToCompleteAfterPhoto = false;
+    setTimeout(()=>{ goToComplete(); }, 700);
+  }
 }
 
 /* ---------------- FLOW DECK BUILD ---------------- */
@@ -803,7 +824,7 @@ function layoutFlow(){
 
 function deckCheck(){
   if (flowIndex < flowEnd - 1){ flowIndex++; layoutFlow(); }
-  else if (flowStart === 0 && flowEnd === FLOW_LEN){ goTo('complete'); }
+  else if (flowStart === 0 && flowEnd === FLOW_LEN){ goToComplete(); }
   else { goTo('home'); }
 }
 function deckPrev(){
@@ -811,7 +832,7 @@ function deckPrev(){
 }
 function deckNext(){
   if (flowIndex < flowEnd - 1){ flowIndex++; layoutFlow(); }
-  else if (flowStart === 0 && flowEnd === FLOW_LEN){ goTo('complete'); }
+  else if (flowStart === 0 && flowEnd === FLOW_LEN){ goToComplete(); }
   else { goTo('home'); }
 }
 function startFlow(fromIndex, endIndex){
@@ -820,6 +841,37 @@ function startFlow(fromIndex, endIndex){
   flowIndex = flowStart;
   layoutFlow();
   goTo('learn');
+}
+
+/* ---------------- 이수완료 전 사진 인증 게이트 ---------------- */
+let returnToCompleteAfterPhoto = false;
+
+function isG2bPhotoDone(){
+  return !!localStorage.getItem('voy-photo-g2b-done');
+}
+function refreshCompleteGate(){
+  const gate = document.getElementById('completeGate');
+  const btn = document.getElementById('sendCompleteBtn');
+  if(!gate || !btn) return;
+  if(isG2bPhotoDone()){
+    gate.style.display = 'none';
+    btn.classList.remove('locked');
+    btn.disabled = false;
+  } else {
+    gate.style.display = 'block';
+    btn.classList.add('locked');
+    btn.disabled = true;
+  }
+}
+function goToComplete(){
+  refreshCompleteGate();
+  goTo('complete');
+}
+function goUploadPhotoFromComplete(){
+  returnToCompleteAfterPhoto = true;
+  // stepData[0](나라장터)은 flow 배열에서 needData 다음, 즉 needData.length 위치
+  const g2bIndex = needData.length;
+  startFlow(g2bIndex, g2bIndex + 1);
 }
 
 /* ---------------- SWIPE ---------------- */
@@ -1002,6 +1054,11 @@ async function sendComplete(){
   const err = document.getElementById('completeError');
   const btn = document.getElementById('sendCompleteBtn');
   err.textContent = '';
+  if(!isG2bPhotoDone()){
+    refreshCompleteGate();
+    err.textContent = '나라장터 인증사진을 먼저 올려주세요.';
+    return;
+  }
   if(!raw){
     err.textContent = '로그인 정보가 없어요. 다시 인증해주세요.';
     return;
@@ -1013,7 +1070,9 @@ async function sendComplete(){
   if(!res.ok){
     btn.disabled = false;
     btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg> 관리자에게 완료메시지 보내기';
-    err.textContent = res.error === 'no_api_url' ? '서버 주소가 설정되지 않았어요.' : '전송에 실패했어요. 잠시 후 다시 시도해주세요.';
+    if(res.error === 'no_api_url') err.textContent = '서버 주소가 설정되지 않았어요.';
+    else if(res.error === 'photo_required') err.textContent = '나라장터 인증사진을 먼저 올려주세요.';
+    else err.textContent = '전송에 실패했어요. 잠시 후 다시 시도해주세요.';
     return;
   }
   localStorage.removeItem('voy-flow-progress');
