@@ -61,21 +61,11 @@
     height:100vh;
     height:100dvh;
     position:relative;
-    background:var(--bg);
+    background-color:var(--bg);
+    background-repeat:repeat;
     overflow:hidden;
     box-shadow: 0 0 60px rgba(0,0,0,0.12);
   }
-
-  .watermark-overlay{
-    position:absolute;
-    inset:0;
-    z-index:30;
-    pointer-events:none;
-    opacity:0.24;
-    background-repeat:repeat;
-    display:none;
-  }
-  .watermark-overlay.show{display:block;}
 
   /* ---------- Top bar ---------- */
   .topbar{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;flex-shrink:0;}
@@ -93,7 +83,7 @@
     position:absolute;inset:0;display:flex;flex-direction:column;
     opacity:0;pointer-events:none;transform:translateY(8px);
     transition:opacity .28s ease, transform .28s ease;
-    z-index:1;background:var(--bg);
+    z-index:1;background:transparent;
   }
   .screen.active{opacity:1;pointer-events:auto;transform:translateY(0);z-index:2;}
 
@@ -326,7 +316,6 @@
 </div>
 
 <div id="app">
-  <div class="watermark-overlay" id="watermarkOverlay"></div>
 
 
   <!-- ============ GATE ============ -->
@@ -962,23 +951,21 @@ async function submitKey(){
 function buildWatermarkUrl_(text){
   const safe = String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const lines = [26, 66, 106, 146].map(y =>
-    `<text x='0' y='${y}' transform='rotate(-28 90 85)' font-family='IBM Plex Mono, monospace' font-size='11.5' font-weight='600' fill='rgba(21,36,32,0.7)'>${safe}</text>`
+    `<text x='0' y='${y}' transform='rotate(-28 90 85)' font-family='IBM Plex Mono, monospace' font-size='11.5' font-weight='600' fill='rgba(21,36,32,0.16)'>${safe}</text>`
   ).join('');
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='180' height='170'>${lines}</svg>`;
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='180' height='170'><rect width='180' height='170' fill='#F4F6F1'/>${lines}</svg>`;
   return 'data:image/svg+xml,' + encodeURIComponent(svg);
 }
 function showWatermark(name, employeeId){
-  const el = document.getElementById('watermarkOverlay');
-  if(!el) return;
+  const app = document.getElementById('app');
+  if(!app) return;
   const label = employeeId ? `${name} · ${employeeId}` : `${name}`;
-  el.style.backgroundImage = `url("${buildWatermarkUrl_(label)}")`;
-  el.classList.add('show');
+  app.style.backgroundImage = `url("${buildWatermarkUrl_(label)}")`;
 }
 function hideWatermark(){
-  const el = document.getElementById('watermarkOverlay');
-  if(!el) return;
-  el.classList.remove('show');
-  el.style.backgroundImage = '';
+  const app = document.getElementById('app');
+  if(!app) return;
+  app.style.backgroundImage = '';
 }
 
 /* ---- Login / logout ---- */
