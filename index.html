@@ -420,7 +420,7 @@
 
   <div class="modal-sheet" id="modal-email" style="display:none;">
     <div class="modal-title">유한양행 인증하기</div>
-    <div class="modal-desc">이름, 사번, 회사 이메일(@yuhan.co.kr)을 입력하면 관리자에게 인증 요청이 전송됩니다.</div>
+    <div class="modal-desc">이름, 사번, 회사 이메일(@yuhan.co.kr)을 입력하면 바로 인증되어 이용할 수 있어요.</div>
     <span class="field-label">이름</span>
     <input type="text" class="field-input" id="nameInput" placeholder="유일한" autocomplete="off">
     <span class="field-label">사번 (8자리 숫자)</span>
@@ -430,7 +430,7 @@
     <div class="field-error" id="emailError"></div>
     <div class="modal-row">
       <button class="btn-secondary" onclick="closeModal()">취소</button>
-      <button class="btn-primary" id="emailSubmitBtn" onclick="submitEmailRequest()">관리자에게 보내기</button>
+      <button class="btn-primary" id="emailSubmitBtn" onclick="submitEmailRequest()">인증하고 시작하기</button>
     </div>
   </div>
 
@@ -791,13 +791,18 @@ async function submitEmailRequest(){
   btn.disabled = true; btn.textContent = '전송 중...';
   const res = await apiCall('request', {name, email, employeeId});
   btn.disabled = false;
-  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> 관리자에게 보내기';
+  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> 인증하고 시작하기';
   if(!res.ok){
     if(res.error === 'no_api_url') err.textContent = '아직 서버 주소(API_URL)가 설정되지 않았어요.';
     else if(res.error === 'invalid_email') err.textContent = '@yuhan.co.kr 회사 이메일만 입력할 수 있어요.';
     else if(res.error === 'invalid_name') err.textContent = '이름을 입력해주세요.';
     else if(res.error === 'invalid_employee_id') err.textContent = '사번은 8자리 숫자로 입력해주세요.';
     else err.textContent = '요청 전송에 실패했어요. 잠시 후 다시 시도해주세요.';
+    return;
+  }
+  if(res.key){
+    // 자동 승인: 관리자 확인 없이 바로 로그인
+    loginWithAuth(res.name || name, res.email || email, res.key, employeeId);
     return;
   }
   localStorage.setItem('voy-pending', JSON.stringify({id:res.id, name, email}));
