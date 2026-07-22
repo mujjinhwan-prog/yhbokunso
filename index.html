@@ -138,6 +138,19 @@
     font-size:14px;outline:none;margin-bottom:6px;
   }
   .field-input:focus{border-color:var(--primary);}
+  .email-field-wrap{
+    display:flex;align-items:center;border:1.5px solid var(--line);border-radius:12px;
+    margin-bottom:6px;overflow:hidden;background:#fff;
+  }
+  .email-field-wrap:focus-within{border-color:var(--primary);}
+  .email-local-input{
+    flex:1;min-width:0;border:none;outline:none;background:transparent;
+    padding:13px 0 13px 14px;font-size:14px;font-family:inherit;
+  }
+  .email-suffix{
+    padding:13px 14px 13px 4px;color:var(--muted);font-size:14px;white-space:nowrap;
+    font-family:"IBM Plex Mono", monospace;
+  }
   .field-error{font-size:11.5px;color:var(--danger);margin:-2px 0 12px;min-height:14px;font-weight:600;}
   .modal-row{display:flex;gap:10px;}
   .btn-secondary{
@@ -401,13 +414,16 @@
 
   <div class="modal-sheet" id="modal-email" style="display:none;">
     <div class="modal-title">유한양행 인증하기</div>
-    <div class="modal-desc">이름, 사번, 회사 이메일(@yuhan.co.kr)을 입력하면 바로 인증되어 이용할 수 있어요.</div>
+    <div class="modal-desc">이름, 사번, 회사 이메일 아이디(yuhan.co.kr 제외)를 입력하면 바로 인증되어 이용할 수 있어요.</div>
     <span class="field-label">이름</span>
     <input type="text" class="field-input" id="nameInput" placeholder="유일한" autocomplete="off">
     <span class="field-label">사번 (8자리 숫자)</span>
     <input type="text" class="field-input" id="empIdInput" placeholder="20000002" inputmode="numeric" maxlength="8" autocomplete="off">
-    <span class="field-label">회사 이메일</span>
-    <input type="email" class="field-input" id="emailInput" placeholder="yuhan@yuhan.co.kr" autocomplete="off">
+    <span class="field-label">회사 이메일 (yuhan.co.kr 제외)</span>
+    <div class="email-field-wrap" id="emailFieldWrap">
+      <input type="text" id="emailInput" class="email-local-input" placeholder="yuhan" autocomplete="off" inputmode="email">
+      <span class="email-suffix">@yuhan.co.kr</span>
+    </div>
     <div class="field-error" id="emailError"></div>
     <div class="modal-row">
       <button class="btn-secondary" onclick="closeModal()">취소</button>
@@ -761,11 +777,14 @@ async function submitEmailRequest(){
   const err = document.getElementById('emailError');
   const name = nameInput.value.trim();
   const employeeId = empIdInput.value.trim();
-  const email = input.value.trim().toLowerCase();
+  // 이메일 아이디만 입력받고 도메인은 자동으로 붙임 (혹시 "@..."까지 입력해도 앞부분만 사용)
+  let localPart = input.value.trim().toLowerCase();
+  localPart = localPart.split('@')[0].replace(/\s+/g, '');
+  const email = localPart ? `${localPart}@yuhan.co.kr` : '';
   if(!name){ err.textContent = '이름을 입력해주세요.'; return; }
   if(!/^\d{8}$/.test(employeeId)){ err.textContent = '사번은 8자리 숫자로 입력해주세요.'; return; }
   if(!/^[^\s@]+@yuhan\.co\.kr$/.test(email)){
-    err.textContent = '@yuhan.co.kr 회사 이메일만 입력할 수 있어요.';
+    err.textContent = '이메일 아이디를 입력해주세요.';
     return;
   }
   const btn = document.getElementById('emailSubmitBtn');
@@ -775,7 +794,7 @@ async function submitEmailRequest(){
   btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> 인증하고 시작하기';
   if(!res.ok){
     if(res.error === 'no_api_url') err.textContent = '아직 서버 주소(API_URL)가 설정되지 않았어요.';
-    else if(res.error === 'invalid_email') err.textContent = '@yuhan.co.kr 회사 이메일만 입력할 수 있어요.';
+    else if(res.error === 'invalid_email') err.textContent = '이메일 아이디를 다시 확인해주세요.';
     else if(res.error === 'invalid_name') err.textContent = '이름을 입력해주세요.';
     else if(res.error === 'invalid_employee_id') err.textContent = '사번은 8자리 숫자로 입력해주세요.';
     else err.textContent = '요청 전송에 실패했어요. 잠시 후 다시 시도해주세요.';
