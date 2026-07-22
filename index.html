@@ -271,6 +271,29 @@
   .complete-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;gap:14px;}
   .complete-badge{width:78px;height:78px;border-radius:50%;background:var(--primary-tint);color:var(--primary-dark);display:flex;align-items:center;justify-content:center;}
   .complete-badge svg{width:38px;height:38px;}
+  .complete-badge.pop{animation:badgePop .6s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes badgePop{
+    0%{transform:scale(0.3);opacity:0;}
+    55%{transform:scale(1.15);opacity:1;}
+    75%{transform:scale(0.92);}
+    100%{transform:scale(1);}
+  }
+  .confetti-layer{
+    position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:60;
+  }
+  .confetti-piece{
+    position:absolute;top:-16px;
+    width:8px;height:14px;
+    opacity:0.95;
+    animation-name:confettiFall;
+    animation-timing-function:cubic-bezier(.25,.46,.45,.94);
+    animation-fill-mode:forwards;
+  }
+  @keyframes confettiFall{
+    0%{transform:translateY(0) rotate(0deg);opacity:1;}
+    85%{opacity:1;}
+    100%{transform:translateY(720px) rotate(540deg);opacity:0;}
+  }
   .complete-title{font-size:20px;font-weight:800;letter-spacing:-0.01em;}
   .complete-sub{font-size:13px;color:var(--muted);line-height:1.6;max-width:290px;}
   .send-btn{
@@ -388,11 +411,12 @@
 
   <!-- ============ COMPLETE ============ -->
   <section class="screen" id="screen-complete">
+    <div class="confetti-layer" id="confettiLayer"></div>
     <div class="topbar">
       <div class="backbtn" onclick="goTo('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></div>
     </div>
     <div class="complete-wrap">
-      <div class="complete-badge">
+      <div class="complete-badge" id="completeBadge">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
       </div>
       <div class="complete-title">모든 과정을 완료했어요</div>
@@ -913,6 +937,46 @@ async function sendComplete(){
   btn.classList.add('sent');
   btn.disabled = true;
   btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> 완료메시지를 보냈어요';
+  celebrateCompletion();
+}
+
+/* ---------------- 완료 축하 애니메이션 ---------------- */
+function celebrateCompletion(){
+  const badge = document.getElementById('completeBadge');
+  if(badge){
+    badge.classList.remove('pop');
+    void badge.offsetWidth; // 리플로우시켜 애니메이션 재실행 가능하게
+    badge.classList.add('pop');
+  }
+  launchConfetti();
+}
+
+function launchConfetti(){
+  const layer = document.getElementById('confettiLayer');
+  if(!layer) return;
+  layer.innerHTML = '';
+  const colors = ['#1F6F54', '#E2853B', '#2C4C87', '#C2542F', '#F4C95D', '#7FBE9F'];
+  const shapes = ['50%', '3px'];
+  const count = 46;
+  for(let i = 0; i < count; i++){
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    const left = Math.random() * 100;
+    const duration = 1.6 + Math.random() * 1.1;
+    const delay = Math.random() * 0.35;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const radius = shapes[Math.floor(Math.random() * shapes.length)];
+    const size = 6 + Math.random() * 6;
+    piece.style.left = left + '%';
+    piece.style.width = size + 'px';
+    piece.style.height = (size * 1.6) + 'px';
+    piece.style.background = color;
+    piece.style.borderRadius = radius;
+    piece.style.animationDuration = duration + 's';
+    piece.style.animationDelay = delay + 's';
+    layer.appendChild(piece);
+  }
+  setTimeout(()=>{ layer.innerHTML = ''; }, 3200);
 }
 </script>
 </body>
