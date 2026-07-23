@@ -62,7 +62,6 @@
     height:100dvh;
     position:relative;
     background-color:var(--bg);
-    background-repeat:repeat;
     overflow:hidden;
     box-shadow: 0 0 60px rgba(0,0,0,0.12);
   }
@@ -540,7 +539,7 @@ const ICONS = {
 /* ---------------- DATA ---------------- */
 const needData = [
   {icon:"stethoscope", text:"국가보건기관 공략의 주체는 의료인, 즉 HCP임을 명심하고 공략합시다.", sub:""},
-  {icon:"chart", text:"군 단위의 지소가 존재하는 지역은 연간 평균 2~2.5억 / 5만이상 군 단위는 3~6억 약제비의 시장입니다.", sub:""},
+  {icon:"chart", text:"군 단위의 지소가 존재하는 지역은 년간 평균 2~2.5억 / 인구 5만이상 군 단위는 3~6억 약제비의 시장입니다.", sub:""},
   {icon:"list", text:"약제리스트 내 품목은 지소 및 진료소에 상주하는 공무원이 직접 주문해 약을 확보합니다.", sub:"전국 약제리스트 보건소·지소·의료원 리스트 기준"},
   {icon:"stethoscope", text:"확보된 약 중에서 지소의 공중보건의나 담당의가 처방을 진행합니다.", sub:""},
   {icon:"heart", text:"따라서 진료소도 명확한 영업대상이며, 종종 방문이 필요합니다.", sub:""},
@@ -864,38 +863,15 @@ async function submitKey(){
   loginWithAuth(res.name, res.email, key, res.employeeId);
 }
 
-/* ---- 워터마크 (스크린샷 유출 억제용 표식) ---- */
-function buildWatermarkUrl_(text){
-  const safe = String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const lines = [26, 66, 106, 146].map(y =>
-    `<text x='0' y='${y}' transform='rotate(-28 90 85)' font-family='IBM Plex Mono, monospace' font-size='11.5' font-weight='600' fill='rgba(21,36,32,0.16)'>${safe}</text>`
-  ).join('');
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='180' height='170'><rect width='180' height='170' fill='#F4F6F1'/>${lines}</svg>`;
-  return 'data:image/svg+xml,' + encodeURIComponent(svg);
-}
-function showWatermark(name, employeeId){
-  const app = document.getElementById('app');
-  if(!app) return;
-  const label = employeeId ? `${name} · ${employeeId}` : `${name}`;
-  app.style.backgroundImage = `url("${buildWatermarkUrl_(label)}")`;
-}
-function hideWatermark(){
-  const app = document.getElementById('app');
-  if(!app) return;
-  app.style.backgroundImage = '';
-}
-
 /* ---- Login / logout ---- */
 function loginWithAuth(name, email, key, employeeId){
   localStorage.setItem('voy-auth', JSON.stringify({name, email, key, employeeId}));
   closeModal();
   document.getElementById('homeUserEmail').textContent = name ? `${name} (${email})` : email;
-  showWatermark(name, employeeId);
   goTo('home');
 }
 function logout(){
   localStorage.removeItem('voy-auth');
-  hideWatermark();
   goTo('gate');
 }
 function initAuth(){
@@ -904,7 +880,6 @@ function initAuth(){
     try{
       const data = JSON.parse(raw);
       document.getElementById('homeUserEmail').textContent = data.name ? `${data.name} (${data.email})` : data.email;
-      showWatermark(data.name || data.email, data.employeeId);
       goTo('home');
       return;
     }catch(e){}
